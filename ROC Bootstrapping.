@@ -1,0 +1,25 @@
+import numpy as np
+from sklearn.utils import resample
+
+# Number of bootstrap samples
+n_iterations = 1000
+
+# Arrays to store bootstrap results
+bootstrapped_aucs = []
+
+for i in range(n_iterations):
+    # Bootstrap resample for each class
+    pathogenic_sample = resample(df[df['State'] == 1], replace=True, n_samples=int(0.85 * len(df[df['State'] == 1])))
+    control_sample = resample(df[df['State'] == 0], replace=True, n_samples=int(0.85 * len(df[df['State'] == 0])))
+    bootstrap_sample = pd.concat([pathogenic_sample, control_sample])
+    
+    # Recompute the AUC for the bootstrap sample
+    fpr, tpr, thresholds = roc_curve(bootstrap_sample['State'], bootstrap_sample['miRNA'])
+    roc_auc = auc(fpr, tpr)
+    bootstrapped_aucs.append(roc_auc)
+
+# Count how many times the bootstrapped AUC is as high as the original
+original_auc = 0.979  # Replace with your original AUC value
+high_auc_count = sum(auc >= original_auc for auc in bootstrapped_aucs)
+
+print(f"Number of times bootstrapped AUC >= {original_auc}: {high_auc_count} out of {n_iterations}")
