@@ -1,0 +1,30 @@
+import pandas as pd
+from scipy.stats import mannwhitneyu
+from statsmodels.stats.multitest import multipletests
+
+# Sample data - replace this with your actual data
+data = {
+    '199_ddct_C': 
+    '199_ddct_P': 
+}
+
+df = pd.DataFrame(data)
+
+# Perform Mann-Whitney U test
+def perform_test(control, pathogenic):
+    stat, p = mannwhitneyu(df[control], df[pathogenic])
+    return stat, p
+
+# Results for '199_ddct_C' and '199_ddct_P'
+stat_199, p_199 = perform_test('199_ddct_C', '199_ddct_P')
+
+# Perform Benjamini-Hochberg procedure
+p_values = [p_199]
+reject, corrected_p_values, _, _ = multipletests(p_values, method='fdr_bh')
+
+print("Mann-Whitney U Test Results:")
+print(f"'199_ddct_C' vs '199_ddct_P': U={stat_199}, p={p_199}")
+
+# Print Benjamini-Hochberg corrected p-values
+print("Benjamini-Hochberg Corrected p-values:")
+print(corrected_p_values)
